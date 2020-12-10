@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation "com.sparkjava:spark-core:2.8.0"
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'com.datadoghq:dd-trace-api:0.50.0'
+}
+
+processResources {
+    from("../movies5000.json.gz")
+}
+
+application {
+    mainClassName = 'movies.Server'
+    applicationDefaultJvmArgs []
+}

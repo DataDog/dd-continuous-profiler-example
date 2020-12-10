@@ -1,0 +1,96 @@
+# Building movies5000.json.gz
+
+Check out https://github.com/piki/wikipedia-film-database, commit 301fb0e, and apply this patch:
+
+```
+diff --git find-movies find-movies
+index f30035a..0278dd6 100755
+--- find-movies
++++ find-movies
+@@ -15,7 +15,7 @@ require 'parser'
+ #   - John Robinson, James Brown
+ #     - Two people with the link text "John Robinson" but different page names
+
+-Parser.debug = true
++Parser.debug = false
+ parser = Parser.new do |movie|
+    puts movie.to_json
+ end
+diff --git lib/movie.rb lib/movie.rb
+index 513f8c0..aa547d9 100755
+--- lib/movie.rb
++++ lib/movie.rb
+@@ -11,7 +11,7 @@ require 'wikitable'
+ require 'unicode'
+
+ class Movie
+-   attr_accessor :title, :cast, :directors, :producers, :companies, :year
++   attr_accessor :title, :cast, :directors, :producers, :companies, :year, :month, :day
+
+    def initialize(title, year)
+        @title = title
+@@ -69,6 +69,8 @@ class Movie
+        if infobox
+            cast = (infobox["stars"] + cast).uniq if infobox["stars"]
+            m.year      = infobox["year"]      if infobox["year"]
++           m.month     = infobox["month"]     if infobox["month"]
++           m.day       = infobox["day"]       if infobox["day"]
+            m.directors = infobox["directors"] if infobox["directors"]
+            m.producers = infobox["producers"] if infobox["producers"]
+            m.companies = infobox["companies"] if infobox["companies"]
+@@ -90,7 +92,15 @@ class Movie
+        h["directors"] = @directors if @directors
+        h["producers"] = @producers if @producers
+        h["companies"] = @companies if @companies
+-       h["year"] = @year if @year
++       begin
++           h["release_date"] = Date.new(@year || 1900, @month || 1, @day || 1).iso8601
++       rescue
++           puts "ERROR: \"#{title}\" doesn't have a valid release date" if Parser.debug
++       end
++       h["vote_average"] = Random.rand * 5
+
+        @@encoder ||= Yajl::Encoder.new
+        @@encoder.encode(h)
+@@ -140,8 +150,10 @@ private
+                        ret["companies"] += val
+                    end
+                when "released"
+-                   if value =~ /\b ((?: 18 | 19 | 20) \d \d) \b/x
++                   if value =~ /\b ((?: 18 | 19 | 20) \d \d) . (\d+) . (\d+) \b/x
+                        ret["year"] = $1.to_i
++                       ret["month"] = $2.to_i
++                       ret["day"] = $3.to_i
+                    end
+                when "runtime"
+                    raise MovieSeriesException.new if value =~ /\bTotal\b/
+```
+
+Download a wikipedia dump as described in the README in the above repo.
+
+Create format_movies.py with the following:
+
+```
+import json
+import sys
+
+records = []
+for line in sys.stdin:
+    try:
+        records.append(json.loads(line))
+    except:
+        pass
+print(json.dumps(records))
+print(len(records), file=sys.stderr)
+```
+
+Then run:
+
+```
+docker run -it -v (pwd):/code -w /code --rm ruby bash
+bundle install
+bzip2 -cd enwiki-20201120-pages-articles-multistream.xml.bz2 | ./find-movies | head -5000 > movies.jsonlines
+exit  # out of the container
+cat movies.jsonlines | python3 format_movies.py > movies5000.json
+gzip movies5000.json
+```

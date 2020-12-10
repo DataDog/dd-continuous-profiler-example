@@ -1,0 +1,58 @@
+version: '3'
+services:
+  datadog-agent:
+    image: datadog/agent:latest
+    env_file:
+    - docker.env
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /proc/:/host/proc/:ro
+    - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    ports:
+    - 127.0.0.1:8126:8126/tcp
+    environment:
+    - DD_APM_ENABLED=true
+    - DD_APM_NON_LOCAL_TRAFFIC=true
+    - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+    - DD_AC_EXCLUDE=name:datadog-agent
+  movies-api-java:
+    build:
+      context: .
+      dockerfile: Dockerfile.java
+    ports:
+    - 127.0.0.1:8081:8080
+    environment:
+    - DD_AGENT_HOST=datadog-agent
+    - DD_SERVICE=movies-api-java
+    - DD_ENV=example
+    - DD_VERSION=1.0
+    depends_on:
+    - datadog-agent
+  movies-api-py:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    ports:
+    - 127.0.0.1:8082:8080
+    environment:
+    - DD_AGENT_HOST=datadog-agent
+    - DD_SERVICE=movies-api-python
+    - DD_ENV=example
+    - DD_VERSION=1.0
+    depends_on:
+    - datadog-agent
+  toolbox:
+    build:
+      context: .
+      dockerfile: Dockerfile.toolbox
+    depends_on:
+    - movies-api-java
+    - movies-api-py
+  small-load:
+    build:
+      context: .
+      dockerfile: Dockerfile.toolbox
+    depends_on:
+    - movies-api-java
+    - movies-api-py
+    command: "sh -c 'while true; do curl -s http://movies-api-java:8080/movies?q=wars; sleep 50; done'"

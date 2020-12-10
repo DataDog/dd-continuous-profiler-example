@@ -1,0 +1,6 @@
+FROM python:3.8
+
+COPY . /home
+WORKDIR /home/python
+RUN pip install --no-cache-dir -r requirements.txt
+CMD DD_PROFILING_TAGS="env:$DD_ENV,service:$DD_SERVICE,version:$DD_VERSION" ddtrace-run python server.py
