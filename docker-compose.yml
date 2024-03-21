@@ -45,6 +45,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.toolbox
+    container_name: dd-continuous-profiler-example-toolbox-1
     depends_on:
     - movies-api-java
     - movies-api-py
