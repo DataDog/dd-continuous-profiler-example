@@ -15,6 +15,7 @@ services:
     - DD_APM_NON_LOCAL_TRAFFIC=true
     - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
     - DD_AC_EXCLUDE=name:datadog-agent
+    - DD_HOSTNAME=profiler-example
   movies-api-java:
     build:
       context: .
