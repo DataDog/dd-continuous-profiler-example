@@ -1,4 +1,3 @@
-version: '3'
 services:
   datadog-agent:
     image: datadog/agent:latest
@@ -15,6 +14,7 @@ services:
     - DD_APM_NON_LOCAL_TRAFFIC=true
     - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
     - DD_AC_EXCLUDE=name:datadog-agent
+    - DD_HOSTNAME=profiler-example
   movies-api-java:
     build:
       context: .
@@ -45,6 +45,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.toolbox
+    container_name: dd-continuous-profiler-example-toolbox-1
     depends_on:
     - movies-api-java
     - movies-api-py
