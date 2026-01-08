@@ -15,4 +15,4 @@ sortedcontainers==2.1.0
 stringcase==1.2.0
 typing-extensions==3.7.4.2
 typing-inspect==0.6.0
-Werkzeug==1.0.1
+Werkzeug==3.1.4
