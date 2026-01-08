@@ -1,6 +1,6 @@
 click==7.1.2
 ddtrace==0.44.0
-Flask==1.1.2
+Flask==3.1.2
 intervaltree==3.0.2
 itsdangerous==1.1.0
 Jinja2==2.11.2
