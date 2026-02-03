@@ -18,6 +18,8 @@ services:
     - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
     - DD_AC_EXCLUDE=name:datadog-agent
     - DD_HOSTNAME=profiler-example
+    # Change this to datadoghq.eu if using a .eu DD_API_KEY
+    - DD_SITE=datadoghq.com
   movies-api-java:
     build:
       context: .
