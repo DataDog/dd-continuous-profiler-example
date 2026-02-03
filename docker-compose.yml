@@ -4,7 +4,10 @@ services:
     env_file:
     - docker.env
     volumes:
+    # If using Docker:
     - /var/run/docker.sock:/var/run/docker.sock:ro
+    # If using Podman (see https://docs.datadoghq.com/containers/guide/podman-support-with-docker-integration/):
+    # - $HOME/.local/share/containers:/var/lib/containers:ro
     - /proc/:/host/proc/:ro
     - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
     ports:
