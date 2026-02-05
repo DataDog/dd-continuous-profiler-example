@@ -61,7 +61,7 @@ public class Server {
 			// Problem: We are parsing a datetime for each item to be sorted.
 			// Example Solution:
 			//   Since date is in isoformat (yyyy-mm-dd) already, that one sorts nicely with normal string sorting
-			//   `return m.releaseDate`
+			// return m.releaseDate != null ? m.releaseDate : "1111-11-11";
 			try {
 				return LocalDate.parse(m.releaseDate);
 			} catch (Exception e) {
